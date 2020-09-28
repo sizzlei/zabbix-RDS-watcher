@@ -7,7 +7,7 @@ AWS-GO-SDK를 활용하여 Aurora RDS에 대한 CloudWatch Metric을 Zabbix로 �
 
 ### v2.0
 + Redshift에 대한 Metric 수집이 추가되었습니다. 
-    + Support Metric
+    + Support Metric 
         + CommitQueueLength
         + ConcurrencyScalingActiveClusters
         + CPUUtilization

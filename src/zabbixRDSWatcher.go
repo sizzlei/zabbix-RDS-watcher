@@ -15,7 +15,7 @@ func main() {
 	IninstanceId		:= flag.String("identifier","","DBInstanceIdentifier")
 	InRegion			:= flag.String("region","ap-northeast-2","AWS Region") 
 	InMetric			:= flag.String("metric","","AWS CloudWatch Database Metric")
-	InClass				:= flag.String("class","RDS","RDS or REDSHIFT")
+	InClass				:= flag.String("class","RDS","RDS or REDSHIFT ")
 
 	flag.Parse()
 	
