@@ -1,39 +1,6 @@
 # zabbix-RDS-watcher
 AWS-GO-SDK를 활용하여 Aurora RDS에 대한 CloudWatch Metric을 Zabbix로 불러올수 있는 프로그램 입니다. 
 
-## Release
-### v1.0
-+ RDS Metric Collect
-
-### v2.0
-+ Redshift에 대한 Metric 수집이 추가되었습니다. 
-    + Support Metric 
-        + CommitQueueLength
-        + ConcurrencyScalingActiveClusters
-        + CPUUtilization
-        + DatabaseConnections
-        + HealthStatus
-        + MaintenanceMode
-        + MaxConfiguredConcurrencyScalingClusters
-        + NetworkReceiveThroughput
-        + NetworkTransmitThroughput
-        + PercentageDiskSpaceUsed
-        + ReadIOPS
-        + ReadLatency
-        + ReadThroughput
-        + TotalTableCount
-        + WriteIOPS
-        + WriteLatency
-        + WriteThroughput
-    + Metric은 Cluster Identifier 기준입니다.
-+ Arg 추가 및 변경
-    + 변경
-        + -instance -> -identifier
-    + 추가
-        + "-class" Value값은 RDS / REDSHIFT
-    
-
-
 ## Import
 ```
 go get github.com/aws/aws-sdk-go/aws
