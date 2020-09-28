@@ -8,72 +8,33 @@ import (
 	"flag"
 	"time"
 	"fmt"
+	"strings"
 )
 
-/*
-Metrics: Aurora 
-@@ System
-*FreeableMemory
-*FreeLocalStorage
-*CPUUtilization
-
-
-@@ Network
-CommitThroughput
-DDLThroughput
-DMLThroughput
-
-*InsertThroughput
-*SelectThroughput
-*DeleteThroughput
-*UpdateThroughput
-
-@@ Connection and Database Info
-*ActiveTransactions
-*DatabaseConnections
-*Deadlocks
-*AbortedClients
-*Queries
-RowLockTime
-EngineUptime
-
-@@ Latency 
-*InsertLatency
-*SelectLatency
-*UpdateLatency
-*DeleteLatency
-*DDLLatency
-*DMLLatency
-*CommitLatency
-
-@@ Replica
-*AuroraReplicaLag
-ForwardingMasterDMLLatency
-ForwardingReplicaDMLLatency
-ForwardingReplicaReadWaitLatency
-ForwardingReplicaSelectLatency
-
-
-ForwardingMasterDMLThroughput
-ForwardingReplicaDMLThroughput
-ForwardingReplicaReadWaitThroughput
-ForwardingReplicaReadWaitThroughput
-
-*/
-
 func main() {
-	IninstanceId		:= flag.String("instance","","DBInstanceIdentifier")
+	IninstanceId		:= flag.String("identifier","","DBInstanceIdentifier")
 	InRegion			:= flag.String("region","ap-northeast-2","AWS Region") 
 	InMetric			:= flag.String("metric","","AWS CloudWatch Database Metric")
+	InClass				:= flag.String("class","RDS","RDS or REDSHIFT")
+
 	flag.Parse()
 	
 	istId	:= *IninstanceId
 	region	:= *InRegion
 	metric	:= *InMetric
+	class	:= *InClass
 
 	// AWS KEY
 	accKey 	:= ""
 	secKey	:= ""
+
+	// Redshift Support Metric
+	rdMetring := []string{
+		"CommitQueueLength","ConcurrencyScalingActiveClusters","CPUUtilization","DatabaseConnections",
+		"HealthStatus","MaintenanceMode","MaxConfiguredConcurrencyScalingClusters","NetworkReceiveThroughput",
+		"NetworkTransmitThroughput","PercentageDiskSpaceUsed","ReadIOPS","ReadLatency","ReadThroughput",
+		"TotalTableCount","WriteIOPS","WriteLatency","WriteThroughput",
+	}
 
 	// Validate Opt
 	if len(istId) == 0 || len(accKey) == 0 || len(secKey) == 0 {
@@ -92,10 +53,39 @@ func main() {
         Credentials: credentials.NewStaticCredentials(accKey, secKey, ""),
 	})
 
+	// Class Switch
+	dClass := strings.ToLower(class)
+	var identifierDiv string
+	var identifierType string
+	switch dClass {
+	case "rds":
+		identifierDiv = "RDS"
+		identifierType = "DBInstanceIdentifier"
+	case "redshift" :
+		identifierDiv = "Redshift"
+		identifierType = "ClusterIdentifier"
+		
+		// Metric Check
+		var metricCheck bool = false
+		for i:=0;i<len(rdMetring);i++ {
+			if rdMetring[i] == metric {
+				metricCheck = true
+			}
+		}
+		if metricCheck == false {
+			panic("Not Support Metric")
+		}
+	default:
+		panic("Not Support Class.")
+	}
+
+	// Set Name Space
+	vNameSpace := fmt.Sprintf("AWS/%s",identifierDiv)
+
 	// Get Metric
 	vl, err := cw.GetMetricStatistics(
 		&cloudwatch.GetMetricStatisticsInput{
-			Namespace: 		aws.String("AWS/RDS"),
+			Namespace: 		aws.String(vNameSpace),
 			MetricName: 	aws.String(metric),
 			Period: 		aws.Int64(60),
 			StartTime:		aws.Time(start),
@@ -105,7 +95,7 @@ func main() {
 			},
 			Dimensions: []*cloudwatch.Dimension{
 				{
-					Name:  aws.String("DBInstanceIdentifier"),
+					Name:  aws.String(identifierType),
 					Value: aws.String(istId),
 				},
 			},
@@ -128,7 +118,7 @@ func main() {
 			}
 		}
 	}
-	fmt.Println(vl.Datapoints)
+
 	var result float64
 	if metric == "FreeableMemory" || metric == "FreeLocalStorage"{
 		 memByte := aws.Float64Value(vl.Datapoints[lstIdx].Average)
@@ -136,7 +126,6 @@ func main() {
 	} else {
 		result = aws.Float64Value(vl.Datapoints[lstIdx].Average)
 	}
-  
-	fmt.Println(vl.Datapoints)
+
 	fmt.Println(result)
 }

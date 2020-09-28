@@ -1,6 +1,39 @@
 # zabbix-RDS-watcher
 AWS-GO-SDK를 활용하여 Aurora RDS에 대한 CloudWatch Metric을 Zabbix로 불러올수 있는 프로그램 입니다. 
 
+## Release
+### v1.0
++ RDS Metric Collect
+
+### v2.0
++ Redshift에 대한 Metric 수집이 추가되었습니다. 
+    + Support Metric
+        + CommitQueueLength
+        + ConcurrencyScalingActiveClusters
+        + CPUUtilization
+        + DatabaseConnections
+        + HealthStatus
+        + MaintenanceMode
+        + MaxConfiguredConcurrencyScalingClusters
+        + NetworkReceiveThroughput
+        + NetworkTransmitThroughput
+        + PercentageDiskSpaceUsed
+        + ReadIOPS
+        + ReadLatency
+        + ReadThroughput
+        + TotalTableCount
+        + WriteIOPS
+        + WriteLatency
+        + WriteThroughput
+    + Metric은 Cluster Identifier 기준입니다.
++ Arg 추가 및 변경
+    + 변경
+        + -instance -> -identifier
+    + 추가
+        + "-class" Value값은 RDS / REDSHIFT
+    
+
+
 ## Import
 ```
 go get github.com/aws/aws-sdk-go/aws
@@ -21,7 +54,7 @@ GOOS=linux go build main.go
 ```
 
 ## View Metric
-해당 프로그램은 Aurora for MySQL에 대해 아래의 Metric을 수집
+### RDS Metric
 + FreeableMemory
 + FreeLocalStorage
 + CPUUtilization
@@ -55,6 +88,25 @@ GOOS=linux go build main.go
 + ForwardingReplicaDMLThroughput
 + ForwardingReplicaReadWaitThroughput
 + ForwardingReplicaReadWaitThroughput
+
+### Redshift Metric
++ CommitQueueLength
++ ConcurrencyScalingActiveClusters
++ CPUUtilization
++ DatabaseConnections
++ HealthStatus
++ MaintenanceMode
++ MaxConfiguredConcurrencyScalingClusters
++ NetworkReceiveThroughput
++ NetworkTransmitThroughput
++ PercentageDiskSpaceUsed
++ ReadIOPS
++ ReadLatency
++ ReadThroughput
++ TotalTableCount
++ WriteIOPS
++ WriteLatency
++ WriteThroughput
 
 ## Zabbix Usage
 Zabbix에 Item 등록시 Key 부분에 아래와 같이 작성.
